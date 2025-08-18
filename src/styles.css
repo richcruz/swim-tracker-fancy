@@ -1,0 +1,7 @@
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+body { margin: 0; font-family: ui-sans-serif, system-ui, Arial, sans-serif; background:#f8fafc; color:#0f172a; }
+button, input, select, textarea { font: inherit; }
+button { border: 1px solid #e2e8f0; background: #fff; padding: 6px 10px; border-radius: 8px; cursor: pointer; }
+button:hover { background:#f1f5f9; }
+a { color:#0ea5e9; }
