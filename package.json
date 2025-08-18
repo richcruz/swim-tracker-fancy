@@ -20,5 +20,8 @@
   },
   "overrides": {
     "typescript": "4.9.5"
+  },
+  "engines": {
+    "node": "18.x"
   }
 }
