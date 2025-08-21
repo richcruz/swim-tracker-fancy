@@ -600,3 +600,20 @@ export default function App() {
                       <div style={{ fontWeight: 600, fontSize: 14 }}>Cohort history</div>
                       <ul style={{ marginTop: 8, paddingLeft: 16 }}>
                         {(!selected.cohortHistory || selected.cohortHistory.length === 0) && <li style={{
+  color: "#6b7280" }}>No cohorts yet</li>}
+  {selected.cohortHistory?.map((c, i) => (
+    <li key={i} style={{ fontSize: 13 }}>
+      Cohort ID: {c}
+    </li>
+  ))}
+</ul>
+</Card>
+</div>
+)}
+</div>
+)}
+</main>
+</div>
+);
+}
+
