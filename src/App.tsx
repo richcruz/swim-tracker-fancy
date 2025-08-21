@@ -147,6 +147,125 @@ function useLocalState<T>(key: string, initial: T) {
   return [state, setState] as const;
 }
 
+// Missing components - adding them
+function Header({ title }: { title: string }) {
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: "#1e293b" }}>{title}</h1>
+    </div>
+  );
+}
+
+function Card({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
+  return (
+    <div style={{ border: "1px solid #e2e8f0", borderRadius: 12, padding: 16, background: "#fff", ...style }}>
+      {children}
+    </div>
+  );
+}
+
+function Badge({ children }: { children: React.ReactNode }) {
+  return (
+    <span style={{ 
+      background: "#f1f5f9", 
+      color: "#475569", 
+      padding: "4px 8px", 
+      borderRadius: 6, 
+      fontSize: 12, 
+      fontWeight: 500 
+    }}>
+      {children}
+    </span>
+  );
+}
+
+function Roster({ 
+  students, 
+  selectedId, 
+  onSelect, 
+  onRemove 
+}: { 
+  students: Student[]; 
+  selectedId: string | null; 
+  onSelect: (id: string) => void; 
+  onRemove?: () => void; 
+}) {
+  return (
+    <Card>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+        <h3 style={{ margin: 0, fontWeight: 600 }}>Student Roster</h3>
+        {onRemove && (
+          <button onClick={onRemove} style={{ background: "#fee2e2", color: "#dc2626", border: "1px solid #fecaca", borderRadius: 6, padding: "4px 8px", fontSize: 12 }}>
+            Remove Student
+          </button>
+        )}
+      </div>
+      <div style={{ display: "grid", gap: 8 }}>
+        {students.length === 0 && (
+          <div style={{ color: "#64748b", fontSize: 14, textAlign: "center", padding: 16 }}>
+            No students found
+          </div>
+        )}
+        {students.map((student) => (
+          <div
+            key={student.id}
+            onClick={() => onSelect(student.id)}
+            style={{
+              padding: 12,
+              border: selectedId === student.id ? "2px solid #3b82f6" : "1px solid #e2e8f0",
+              borderRadius: 8,
+              cursor: "pointer",
+              background: selectedId === student.id ? "#eff6ff" : "#fff",
+              transition: "all 0.2s"
+            }}
+          >
+            <div style={{ fontWeight: 600, fontSize: 14 }}>{student.name}</div>
+            <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>
+              Level: {computeLevel(student.skills)}
+            </div>
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
+function AddNote({ onAdd }: { onAdd: (text: string) => void }) {
+  const [text, setText] = useState("");
+  
+  const handleSubmit = () => {
+    if (text.trim()) {
+      onAdd(text.trim());
+      setText("");
+    }
+  };
+
+  return (
+    <Card>
+      <div style={{ fontWeight: 600, marginBottom: 8 }}>Add Lesson Note</div>
+      <textarea
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder="Enter lesson notes, observations, or feedback..."
+        style={{
+          width: "100%",
+          height: 80,
+          padding: 8,
+          border: "1px solid #e2e8f0",
+          borderRadius: 6,
+          fontSize: 14,
+          resize: "vertical"
+        }}
+      />
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 8 }}>
+        <button onClick={handleSubmit} disabled={!text.trim()}>
+          Add Note
+        </button>
+      </div>
+    </Card>
+  );
+}
+
 export default function App() {
   const [cohorts, setCohorts] = useLocalState<Cohort[]>("swimsteps_cohorts", SAMPLE_COHORTS);
   const [studentsRaw, setStudents] = useLocalState<Student[]>("swimsteps_students", SAMPLE_STUDENTS);
@@ -599,21 +718,58 @@ export default function App() {
                     <Card>
                       <div style={{ fontWeight: 600, fontSize: 14 }}>Cohort history</div>
                       <ul style={{ marginTop: 8, paddingLeft: 16 }}>
-                        {(!selected.cohortHistory || selected.cohortHistory.length === 0) && <li style={{
-  color: "#6b7280" }}>No cohorts yet</li>}
-  {selected.cohortHistory?.map((c, i) => (
-    <li key={i} style={{ fontSize: 13 }}>
-      Cohort ID: {c}
-    </li>
-  ))}
-</ul>
-</Card>
-</div>
-)}
-</div>
-)}
-</main>
-</div>
-);
-}
+                        {(!selected.cohortHistory || selected.cohortHistory.length === 0) && <li style={{ color: "#6b7280" }}>No cohorts yet</li>}
+                        {selected.cohortHistory?.map((c, i) => (
+                          <li key={i} style={{ fontSize: 13 }}>
+                            Cohort ID: {c}
+                          </li>
+                        ))}
+                      </ul>
+                    </Card>
+                  </div>
+                )}
 
+                {tab === "resources" && (
+                  <div style={{ marginTop: 12 }}>
+                    <Card>
+                      <div style={{ fontWeight: 600, marginBottom: 12 }}>Swimming Resources</div>
+                      <div style={{ display: "grid", gap: 8 }}>
+                        {ALL_SKILLS.map((skill) => (
+                          <div key={skill.key} style={{ border: "1px solid #e2e8f0", borderRadius: 8, padding: 10 }}>
+                            <div style={{ fontWeight: 600, fontSize: 14 }}>{skill.name}</div>
+                            <div style={{ fontSize: 12, color: "#64748b", marginBottom: 6 }}>{skill.cat}</div>
+                            <a href={skill.yt} target="_blank" rel="noreferrer" style={{ fontSize: 12, textDecoration: "underline" }}>
+                              Watch instructional video
+                            </a>
+                            {DRILLS[skill.key] && (
+                              <div style={{ marginTop: 8 }}>
+                                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>Practice drills:</div>
+                                {DRILLS[skill.key].map((drill) => (
+                                  <div key={drill.key} style={{ fontSize: 11, color: "#475569", marginLeft: 8 }}>
+                                    • {drill.title}: {drill.desc}
+                                    {drill.yt && (
+                                      <>
+                                        {" "}
+                                        <a href={drill.yt} target="_blank" rel="noreferrer" style={{ textDecoration: "underline" }}>
+                                          Watch
+                                        </a>
+                                      </>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </Card>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
